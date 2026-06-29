@@ -2,9 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import process from 'node:process';
 
-import { createApp } from '../src/server-app.js';
 import { initConfig } from '../src/config-init.js';
-import { initUserStorage, ensurePublicDirectoriesExist } from '../src/users.js';
 
 const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV !== undefined;
 const DATA_ROOT = isVercel ? '/tmp/sillytavern-data' : path.resolve('./data');
@@ -16,17 +14,21 @@ if (!fs.existsSync(DATA_ROOT)) {
     fs.mkdirSync(DATA_ROOT, { recursive: true });
 }
 
-const configPaths = ['./config.yaml', './vercel.config.yaml'];
-const configPath = configPaths.find(p => fs.existsSync(p)) || configPaths[0];
+const sourceConfig = ['./vercel.config.yaml', './config.yaml'].find(p => fs.existsSync(p));
+const configPath = path.join(DATA_ROOT, 'config.yaml');
+
+if (sourceConfig) {
+    const content = fs.readFileSync(sourceConfig, 'utf8');
+    fs.writeFileSync(configPath, content, 'utf8');
+} else {
+    fs.writeFileSync(configPath, '{}', 'utf8');
+}
+
 initConfig(configPath);
-
-process.chdir(path.resolve('.'));
-
-const DATA_ROOT_PATH = DATA_ROOT;
 
 globalThis.COMMAND_LINE_ARGS = {
     configPath: configPath,
-    dataRoot: DATA_ROOT_PATH,
+    dataRoot: DATA_ROOT,
     port: 8000,
     listen: false,
     listenAddressIPv6: '[::]',
@@ -57,8 +59,16 @@ globalThis.COMMAND_LINE_ARGS = {
     getBrowserLaunchUrl: (hostname) => new URL(`http://${hostname}:8000`),
 };
 
-await initUserStorage(DATA_ROOT_PATH);
-await ensurePublicDirectoriesExist();
+const { initUserStorage, ensurePublicDirectoriesExist } = await import('../src/users.js');
+const { createApp } = await import('../src/server-app.js');
+
+await initUserStorage(DATA_ROOT);
+try {
+    await ensurePublicDirectoriesExist();
+} catch (error) {
+    console.warn('Some directories could not be created (expected on Vercel read-only fs):', error.message);
+}
+
 const app = await createApp(globalThis.COMMAND_LINE_ARGS);
 
 export default app;
