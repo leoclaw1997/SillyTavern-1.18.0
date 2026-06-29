@@ -12,6 +12,8 @@ export function userCssMiddleware(req, res, next) {
             res.sendFile(userCssPath);
             return;
         }
+        res.type('css').send('');
+        return;
     }
     next();
 }

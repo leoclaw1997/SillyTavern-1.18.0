@@ -69,6 +69,14 @@ try {
     console.warn('Some directories could not be created (expected on Vercel read-only fs):', error.message);
 }
 
+const distWebpack = path.resolve('dist/_webpack');
+if (fs.existsSync(distWebpack)) {
+    const target = path.join(DATA_ROOT, '_webpack');
+    if (!fs.existsSync(target)) {
+        fs.cpSync(distWebpack, target, { recursive: true, force: true });
+    }
+}
+
 const app = await createApp(globalThis.COMMAND_LINE_ARGS);
 
 export default app;
