@@ -77,6 +77,25 @@ if (fs.existsSync(distWebpack)) {
     }
 }
 
+const userDataRoot = path.join(DATA_ROOT, 'default-user');
+const userDirs = ['User Avatars', 'backgrounds', 'characters', 'chats', 'groups', 'group chats', 'worlds', 'themes', 'NovelAI Settings', 'KoboldAI Settings', 'OpenAI Settings', 'TextGen Settings', 'QuickReplies', 'user', 'user/images', 'user/workflows', 'user/files', 'vectors', 'backups', 'thumbnails', 'assets', 'extensions', 'instruct', 'context', 'movingUI', 'sysprompt', 'reasoning'];
+
+for (const dir of userDirs) {
+    const fullPath = path.join(userDataRoot, dir);
+    if (!fs.existsSync(fullPath)) {
+        fs.mkdirSync(fullPath, { recursive: true });
+    }
+}
+
+const settingsPath = path.join(userDataRoot, 'settings.json');
+if (!fs.existsSync(settingsPath)) {
+    fs.writeFileSync(settingsPath, JSON.stringify({
+        version: 1,
+        power_user: { default_persona: '' },
+        user_avatar: '',
+    }), 'utf8');
+}
+
 const app = await createApp(globalThis.COMMAND_LINE_ARGS);
 
 export default app;
