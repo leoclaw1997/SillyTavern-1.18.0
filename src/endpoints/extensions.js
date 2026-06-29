@@ -478,34 +478,57 @@ router.post('/delete', async (request, response) => {
  * If the folder is called third-party, search for subfolders instead
  */
 router.get('/discover', function (request, response) {
-    if (!fs.existsSync(path.join(request.user.directories.extensions))) {
-        fs.mkdirSync(path.join(request.user.directories.extensions));
+    try {
+        if (!fs.existsSync(path.join(request.user.directories.extensions))) {
+            fs.mkdirSync(path.join(request.user.directories.extensions));
+        }
+    } catch {
+        // expected on Vercel read-only fs
     }
 
-    if (!fs.existsSync(PUBLIC_DIRECTORIES.globalExtensions)) {
-        fs.mkdirSync(PUBLIC_DIRECTORIES.globalExtensions);
+    try {
+        if (!fs.existsSync(PUBLIC_DIRECTORIES.globalExtensions)) {
+            fs.mkdirSync(PUBLIC_DIRECTORIES.globalExtensions);
+        }
+    } catch {
+        // expected on Vercel read-only fs
     }
 
     // Get all folders in system extensions folder, excluding third-party
-    const builtInExtensions = fs
-        .readdirSync(PUBLIC_DIRECTORIES.extensions)
-        .filter(f => fs.statSync(path.join(PUBLIC_DIRECTORIES.extensions, f)).isDirectory())
-        .filter(f => f !== 'third-party')
-        .map(f => ({ type: 'system', name: f }));
+    let builtInExtensions = [];
+    try {
+        builtInExtensions = fs
+            .readdirSync(PUBLIC_DIRECTORIES.extensions)
+            .filter(f => fs.statSync(path.join(PUBLIC_DIRECTORIES.extensions, f)).isDirectory())
+            .filter(f => f !== 'third-party')
+            .map(f => ({ type: 'system', name: f }));
+    } catch {
+        // directory not found
+    }
 
     // Get all folders in local extensions folder
-    const userExtensions = fs
-        .readdirSync(path.join(request.user.directories.extensions))
-        .filter(f => fs.statSync(path.join(request.user.directories.extensions, f)).isDirectory())
-        .map(f => ({ type: 'local', name: `third-party/${f}` }));
+    let userExtensions = [];
+    try {
+        userExtensions = fs
+            .readdirSync(path.join(request.user.directories.extensions))
+            .filter(f => fs.statSync(path.join(request.user.directories.extensions, f)).isDirectory())
+            .map(f => ({ type: 'local', name: `third-party/${f}` }));
+    } catch {
+        // directory not found
+    }
 
     // Get all folders in global extensions folder
     // In case of a conflict, the extension will be loaded from the user folder
-    const globalExtensions = fs
-        .readdirSync(PUBLIC_DIRECTORIES.globalExtensions)
-        .filter(f => fs.statSync(path.join(PUBLIC_DIRECTORIES.globalExtensions, f)).isDirectory())
-        .map(f => ({ type: 'global', name: `third-party/${f}` }))
-        .filter(f => !userExtensions.some(e => e.name === f.name));
+    let globalExtensions = [];
+    try {
+        globalExtensions = fs
+            .readdirSync(PUBLIC_DIRECTORIES.globalExtensions)
+            .filter(f => fs.statSync(path.join(PUBLIC_DIRECTORIES.globalExtensions, f)).isDirectory())
+            .map(f => ({ type: 'global', name: `third-party/${f}` }))
+            .filter(f => !userExtensions.some(e => e.name === f.name));
+    } catch {
+        // directory not found
+    }
 
     // Combine all extensions
     const allExtensions = [...builtInExtensions, ...userExtensions, ...globalExtensions];
