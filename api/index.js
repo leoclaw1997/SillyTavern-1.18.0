@@ -96,18 +96,26 @@ if (!fs.existsSync(settingsPath)) {
     }), 'utf8');
 }
 
-const publicBackgrounds = path.resolve('public/backgrounds');
-if (!fs.existsSync(publicBackgrounds)) {
-    fs.mkdirSync(publicBackgrounds, { recursive: true });
-    const defaultBg = path.resolve('default/content/backgrounds');
-    if (fs.existsSync(defaultBg)) {
-        try { fs.cpSync(defaultBg, publicBackgrounds, { recursive: true, force: true }); } catch {}
+try {
+    const publicBackgrounds = path.resolve('public/backgrounds');
+    if (!fs.existsSync(publicBackgrounds)) {
+        fs.mkdirSync(publicBackgrounds, { recursive: true });
+        const defaultBg = path.resolve('default/content/backgrounds');
+        if (fs.existsSync(defaultBg)) {
+            fs.cpSync(defaultBg, publicBackgrounds, { recursive: true, force: true });
+        }
     }
+} catch (error) {
+    console.warn('Could not set up backgrounds directory:', error.message);
 }
 
-const thirdPartyDir = path.resolve('public/scripts/extensions/third-party');
-if (!fs.existsSync(thirdPartyDir)) {
-    try { fs.mkdirSync(thirdPartyDir, { recursive: true }); } catch {}
+try {
+    const thirdPartyDir = path.resolve('public/scripts/extensions/third-party');
+    if (!fs.existsSync(thirdPartyDir)) {
+        fs.mkdirSync(thirdPartyDir, { recursive: true });
+    }
+} catch (error) {
+    console.warn('Could not create third-party extensions directory:', error.message);
 }
 
 const app = await createApp(globalThis.COMMAND_LINE_ARGS);
