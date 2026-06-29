@@ -374,6 +374,7 @@ export class QuickReplySet {
     }
 
     async performSave() {
+        if (!this.name) return;
         const response = await fetch('/api/quick-replies/save', {
             method: 'POST',
             headers: getRequestHeaders(),
