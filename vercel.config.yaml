@@ -1,0 +1,49 @@
+dataRoot: /tmp/sillytavern-data
+port: 8000
+listen: false
+whitelistMode: false
+enableForwardedWhitelist: false
+basicAuthMode: false
+enableCorsProxy: false
+cors:
+  enabled: true
+  origin:
+    - '*'
+  methods:
+    - OPTIONS
+  allowedHeaders: []
+  exposedHeaders: []
+  credentials: false
+  maxAge: null
+enableUserAccounts: false
+enableDiscreetLogin: false
+perUserBasicAuth: false
+sessionTimeout: -1
+disableCsrfProtection: false
+securityOverride: true
+logging:
+  enableAccessLog: false
+  minLogLevel: 0
+rateLimiting:
+  preferRealIpHeader: false
+  basicAuthMaxAttempts: 5
+  accountsLoginMaxAttempts: 5
+  accountsRecoverMaxAttempts: 5
+backups:
+  allowFullDataBackup: false
+  chat:
+    enabled: false
+thumbnails:
+  enabled: true
+  format: jpg
+  quality: 95
+performance:
+  lazyLoadCharacters: true
+  memoryCacheCapacity: 100mb
+  useDiskCache: false
+cacheBuster:
+  enabled: false
+extensions:
+  enabled: true
+  autoUpdate: false
+enableServerPlugins: false
