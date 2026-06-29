@@ -42,7 +42,7 @@ globalThis.COMMAND_LINE_ARGS = {
     browserLaunchPort: -1,
     browserLaunchAvoidLocalhost: false,
     enableCorsProxy: false,
-    disableCsrf: false,
+    disableCsrf: true,
     ssl: false,
     certPath: 'certs/cert.pem',
     keyPath: 'certs/privkey.pem',

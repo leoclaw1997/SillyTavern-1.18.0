@@ -18,12 +18,14 @@ import { serverDirectory } from './server-directory.js';
 import {
     getCookieSecret,
     getCookieSessionName,
+    getUserDirectories,
     requireLoginMiddleware,
     setUserDataMiddleware,
     shouldRedirectToLogin,
     getSessionCookieAge,
     loginPageMiddleware,
 } from './users.js';
+import { DEFAULT_USER } from './constants.js';
 
 import getWebpackServeMiddleware from './middleware/webpack-serve.js';
 import basicAuthMiddleware from './middleware/basicAuth.js';
@@ -174,7 +176,17 @@ export async function createApp(cliArgs) {
 
     app.use('/api/users', usersPublicRouter);
 
-    app.use(requireLoginMiddleware);
+    app.use((req, res, next) => {
+        if (!req.user) {
+            try {
+                const dirs = getUserDirectories(DEFAULT_USER.handle);
+                req.user = { profile: DEFAULT_USER, directories: dirs };
+            } catch {
+                req.user = { profile: DEFAULT_USER, directories: { root: path.join(cliArgs.dataRoot, DEFAULT_USER.handle) } };
+            }
+        }
+        next();
+    });
     app.post('/api/ping', (request, response) => {
         if (request.query.extend && request.session) {
             request.session.touch = Date.now();

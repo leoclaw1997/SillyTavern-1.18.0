@@ -19,7 +19,7 @@ enableUserAccounts: false
 enableDiscreetLogin: false
 perUserBasicAuth: false
 sessionTimeout: -1
-disableCsrfProtection: false
+disableCsrfProtection: true
 securityOverride: true
 logging:
   enableAccessLog: false
