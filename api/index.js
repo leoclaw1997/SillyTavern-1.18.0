@@ -105,8 +105,8 @@ try {
             fs.cpSync(defaultBg, publicBackgrounds, { recursive: true, force: true });
         }
     }
-} catch (error) {
-    console.warn('Could not set up backgrounds directory:', error.message);
+} catch {
+    // expected on Vercel read-only fs; directories are created during build
 }
 
 try {
@@ -114,8 +114,8 @@ try {
     if (!fs.existsSync(thirdPartyDir)) {
         fs.mkdirSync(thirdPartyDir, { recursive: true });
     }
-} catch (error) {
-    console.warn('Could not create third-party extensions directory:', error.message);
+} catch {
+    // expected on Vercel read-only fs; directories are created during build
 }
 
 const app = await createApp(globalThis.COMMAND_LINE_ARGS);
