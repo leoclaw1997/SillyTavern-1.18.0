@@ -20,4 +20,3 @@ Remote-Link.cmd
 .eslintrc.cjs
 jsconfig.json
 .prettierrc
-webpack.config.js
